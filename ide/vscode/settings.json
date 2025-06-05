@@ -1,0 +1,13 @@
+{
+    "workbench.iconTheme": "symbols",
+    "explorer.compactFolders": false,
+    "git.confirmSync": false,
+    "workbench.colorTheme": "GitHub Dark Dimmed",
+  
+    "editor.fontFamily": "'FiraCode Nerd Font', Consolas, 'Courier New', monospace",
+    "editor.fontLigatures": true,
+  
+    "terminal.integrated.fontFamily": "'FiraCode Nerd Font', Consolas, 'Courier New', monospace",
+    "terminal.integrated.fontLigatures": true
+}
+  
