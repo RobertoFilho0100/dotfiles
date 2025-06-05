@@ -1,0 +1,10 @@
+# Inicializa o oh-my-posh usando o executável diretamente
+& 'C:\Users\roberto\AppData\Local\Programs\oh-my-posh\bin\oh-my-posh.exe' init pwsh --config 'C:\Users\USER_HERE\oh-my-posh\agnoster.omp.json' | Invoke-Expression
+Clear-Host
+$Host.UI.RawUI.WindowTitle = "PowerShell - WezTerm"
+# Sugestão de Comandos
+
+Import-Module PSReadLine
+
+Set-PSReadLineOption -PredictionSource History
+Set-PSReadLineOption -PredictionViewStyle InlineView
