@@ -1,17 +1,17 @@
 -- Basic options
-vim.opt.number = true           -- Show line numbers
-vim.opt.relativenumber = true   -- Relative line numbers for easier navigation
-vim.opt.hlsearch = true         -- Highlight search matches
-vim.opt.incsearch = true        -- Incremental search
-vim.opt.termguicolors = true    -- True color support
-vim.opt.expandtab = true        -- Use spaces instead of tabs
-vim.opt.shiftwidth = 2          -- Indentation width
-vim.opt.tabstop = 2             -- Tab width
-vim.opt.smartindent = true      -- Smart indentation
-vim.opt.swapfile = false        -- Disable swap files
-vim.opt.backup = false          -- Disable backup files
-vim.opt.undofile = true         -- Enable persistent undo
-vim.opt.clipboard = "unnamedplus" -- Use system clipboard
+vim.opt.number = true
+vim.opt.relativenumber = true
+vim.opt.hlsearch = true
+vim.opt.incsearch = true
+vim.opt.termguicolors = true
+vim.opt.expandtab = true
+vim.opt.shiftwidth = 2
+vim.opt.tabstop = 2
+vim.opt.smartindent = true
+vim.opt.swapfile = false
+vim.opt.backup = false
+vim.opt.undofile = true
+vim.opt.clipboard = "unnamedplus"
 
 -- Plugin manager installation (lazy.nvim)
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -29,18 +29,21 @@ require("lazy").setup({
   { "catppuccin/nvim", name = "catppuccin" },
 
   -- LSP and Autocomplete
-  "neovim/nvim-lspconfig",     -- Language Server Protocol configurations
-  "hrsh7th/nvim-cmp",          -- Autocomplete plugin
-  "hrsh7th/cmp-nvim-lsp",      -- LSP source for nvim-cmp
-  "hrsh7th/cmp-buffer",        -- Buffer source for nvim-cmp
-  "hrsh7th/cmp-path",          -- Path source for nvim-cmp
-  "L3MON4D3/LuaSnip",          -- Snippets engine
-  "saadparwaiz1/cmp_luasnip",  -- Snippet completions for nvim-cmp
+  "neovim/nvim-lspconfig",
+  "hrsh7th/nvim-cmp",
+  "hrsh7th/cmp-nvim-lsp",
+  "hrsh7th/cmp-buffer",
+  "hrsh7th/cmp-path",
+  "L3MON4D3/LuaSnip",
+  "saadparwaiz1/cmp_luasnip",
+
+  -- Null-ls for formatters and linters
+  "jose-elias-alvarez/null-ls.nvim",
 
   -- Status line
   "nvim-lualine/lualine.nvim",
 
-  -- Treesitter (advanced syntax highlighting)
+  -- Treesitter
   {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
@@ -49,12 +52,19 @@ require("lazy").setup({
   -- Icons
   "nvim-tree/nvim-web-devicons",
 
-  -- File Explorer sidebar
+  -- File Explorer
   "nvim-tree/nvim-tree.lua",
 
   -- Fuzzy Finder
   "nvim-telescope/telescope.nvim",
   "nvim-lua/plenary.nvim",
+
+  -- Terminal Toggle Plugin
+  {
+    "akinsho/toggleterm.nvim",
+    version = "*",
+    config = true,
+  },
 })
 
 -- Set colorscheme
@@ -116,9 +126,36 @@ cmp.setup({
   },
 })
 
--- Basic LSP config (example for Lua)
+-- Basic LSP config for Lua
 local lspconfig = require("lspconfig")
 lspconfig.lua_ls.setup({})
+
+-- === Python LSP and formatting setup ===
+
+-- null-ls setup for formatters and linters
+local null_ls = require("null-ls")
+null_ls.setup({
+  sources = {
+    null_ls.builtins.formatting.black,   -- Python formatter
+    null_ls.builtins.diagnostics.flake8, -- Python linter
+  },
+})
+
+-- Pyright LSP for Python
+lspconfig.pyright.setup({
+  on_attach = function(client, bufnr)
+    -- Enable formatting with null-ls if available
+    if client.supports_method("textDocument/formatting") then
+      vim.api.nvim_clear_autocmds({ group = 0, buffer = bufnr })
+      vim.api.nvim_create_autocmd("BufWritePre", {
+        buffer = bufnr,
+        callback = function()
+          vim.lsp.buf.format({ bufnr = bufnr })
+        end,
+      })
+    end
+  end,
+})
 
 -- Nvim-tree file explorer setup
 require("nvim-tree").setup({
@@ -153,3 +190,24 @@ require("telescope").setup{}
 
 -- Keymap for telescope file finder
 vim.api.nvim_set_keymap("n", "<leader>ff", "<cmd>Telescope find_files<cr>", { noremap = true, silent = true })
+
+vim.opt.shell = "pwsh"
+vim.opt.shellcmdflag = '-NoLogo -NoExit -Command "& { . \"$PROFILE\" }"'
+vim.opt.shellquote = ""
+vim.opt.shellxquote = ""
+
+-- ToggleTerm config (VSCode-style terminal)
+require("toggleterm").setup({
+  open_mapping = [[<C-j>]],
+  direction = "horizontal",
+  size = 15,
+  shade_terminals = true,
+  start_in_insert = true,
+  insert_mappings = true,
+  terminal_mappings = true,
+  persist_size = true,
+  close_on_exit = true,
+  shell = vim.o.shell,
+})
+
+vim.api.nvim_set_keymap("t", "<Esc>", [[<C-\><C-n>]], { noremap = true, silent = true })
